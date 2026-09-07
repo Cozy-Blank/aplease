@@ -41,12 +41,11 @@
       color: var(--text);
       margin: 0;
       padding: 12px 12px 60px;
-      max-width: 480px; /* スマホ最適化サイズ */
+      max-width: 480px;
       margin-left: auto;
       margin-right: auto;
     }
 
-    /* ヘッダー＆トップ画像 */
     header {
       text-align: center;
       position: relative;
@@ -74,7 +73,6 @@
       font-size: 0.85rem; color: var(--subtext); margin-top: 6px; font-weight: bold;
     }
 
-    /* メイン登録フォーム */
     .form-card {
       background: var(--card-bg);
       border-radius: 18px;
@@ -98,14 +96,6 @@
       margin-bottom: -6px;
       font-weight: bold;
     }
-    .url-input-group {
-      display: flex; gap: 6px;
-    }
-    .paste-btn {
-      background: var(--accent); color: white; border: none; padding: 0 12px;
-      border-radius: 10px; font-size: 0.85rem; font-weight: bold; cursor: pointer;
-      white-space: nowrap;
-    }
     .form-card input, .form-card textarea, .form-card select {
       width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
       font-size: 0.9rem; outline: none; background: var(--bg-color); color: var(--text);
@@ -117,7 +107,6 @@
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
 
-    /* 🏷️ 横スワイプ型 シンプルジャンルフィルターボタン */
     .filter-section-title {
       font-size: 0.85rem;
       color: var(--subtext);
@@ -155,7 +144,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    /* アプリカード表示エリア */
     .app-list { display: flex; flex-direction: column; gap: 10px; }
     .app-card {
       background: var(--card-bg); border-radius: 14px; padding: 12px;
@@ -189,27 +177,22 @@
 </head>
 <body>
 
-  <!-- ヘッダー＆トップイラスト画像 -->
   <header>
     <div class="theme-selector">
       <button class="theme-btn" onclick="setTheme('pop')">🍭</button>
       <button class="theme-btn" onclick="setTheme('natural')">🌿</button>
       <button class="theme-btn" onclick="setTheme('craft')">📖</button>
     </div>
-    <img src="top-imagehenai.webp" alt="ア・プリーズ 偏愛Tool" class="top-illustration" onerror="this.onerror=null; this.src='top-image.png';">
+    <img src="top-image.webp?v=2" alt="ア・プリーズ 偏愛Tool" class="top-illustration" onerror="this.onerror=null; this.src='top-image.png';">
     <p class="subtitle">〜 便利なアプリをサクサク手帳に 〜</p>
   </header>
 
   <main>
-    <!-- 1. アプリ登録フォーム -->
     <div class="form-card">
       <h3 class="form-title">アプリの登録</h3>
       
       <div class="input-label">1. リンク (URL)</div>
-      <div class="url-input-group">
-        <input type="url" id="appUrlInput" placeholder="https://...">
-        <button class="paste-btn" onclick="pasteClipboard()">📋 貼り付け</button>
-      </div>
+      <input type="url" id="appUrlInput" placeholder="https://...">
 
       <div class="input-label">2. アプリの名前</div>
       <input type="text" id="appNameInput" placeholder="例: Googleマップ">
@@ -223,21 +206,31 @@
       <button class="save-btn" onclick="saveApp()">保存する</button>
     </div>
 
-    <!-- 2. ジャンル選択ボタン -->
     <div class="filter-section-title">📂 ジャンルで絞り込み</div>
     <div class="genre-filter-container" id="genreFilterBtns"></div>
 
-    <!-- 3. 保存されたアプリ一覧 -->
     <div class="app-list" id="appList"></div>
   </main>
 
   <script>
-    const defaultCategories = ['🧮 計算', '🏠 暮らし', '💼 仕事', '🛠️ 便利', '🗺️ 地図'];
+    // 指定されたジャンルリスト（絵文字付きで分かりやすくセット！）
+    const newCategories = [
+      '🧮 計算',
+      '📄 PDF',
+      '🖼️ 画像変換',
+      '🤖 AI指示',
+      '🏠 物件',
+      '🗺️ 地図',
+      '✨ 生成'
+    ];
     
     let state = JSON.parse(localStorage.getItem('a_please_mobile_data')) || {
-      categories: defaultCategories,
+      categories: newCategories,
       apps: []
     };
+
+    // 既存データがある場合も新しいジャンルリストに自動更新
+    state.categories = newCategories;
 
     let activeFilter = 'すべて';
 
@@ -264,11 +257,9 @@
     }
 
     function render() {
-      // セレクトボックス更新
       document.getElementById('appCatSelect').innerHTML = 
         state.categories.map(c => `<option value="${c}">${c}</option>`).join('');
 
-      // フィルターボタン描画
       const filterContainer = document.getElementById('genreFilterBtns');
       const allCategories = ['すべて', ...state.categories];
       
@@ -278,7 +269,6 @@
         </button>
       `).join('');
 
-      // アプリ描画
       const appList = document.getElementById('appList');
       appList.innerHTML = '';
 
@@ -326,7 +316,6 @@
       }
     }
 
-    // 📤 共有機能（Web Share API）
     async function shareApp(name, url) {
       const shareData = {
         title: name,
@@ -341,7 +330,6 @@
           console.log('共有がキャンセルされました');
         }
       } else {
-        // Web Share未対応のブラウザはコピーで代用
         copyLink(name, url);
       }
     }
@@ -349,19 +337,6 @@
     function copyLink(name, url) {
       navigator.clipboard.writeText(`${name} - ${url}`);
       alert('リンクをコピーしました！');
-    }
-
-    async function pasteClipboard() {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          document.getElementById('appUrlInput').value = text;
-        } else {
-          alert('クリップボードにテキストがありません');
-        }
-      } catch (err) {
-        alert('入力欄をタップして「貼り付け」を選択してください');
-      }
     }
 
     function deleteApp(id) {
