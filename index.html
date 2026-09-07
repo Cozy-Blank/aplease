@@ -41,7 +41,7 @@
       color: var(--text);
       margin: 0;
       padding: 12px 12px 60px;
-      max-width: 480px; /* スマホ専用サイズ */
+      max-width: 480px; /* スマホ最適化サイズ */
       margin-left: auto;
       margin-right: auto;
     }
@@ -74,7 +74,7 @@
       font-size: 0.85rem; color: var(--subtext); margin-top: 6px; font-weight: bold;
     }
 
-    /* メインフォーム（トップページ） */
+    /* メイン登録フォーム */
     .form-card {
       background: var(--card-bg);
       border-radius: 18px;
@@ -84,7 +84,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .form-title {
       margin: 0 0 4px 0;
@@ -117,42 +117,53 @@
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
 
-    /* ジャンル追加ミニエリア */
-    .add-cat-box {
-      display: flex; gap: 8px; margin-bottom: 20px;
+    /* 🏷️ 横スワイプ型 シンプルジャンルフィルターボタン */
+    .filter-section-title {
+      font-size: 0.85rem;
+      color: var(--subtext);
+      font-weight: bold;
+      margin-bottom: 8px;
     }
-    .add-cat-box input {
-      flex: 1; padding: 8px 12px; border-radius: 16px;
-      border: 1px solid var(--border); font-size: 0.85rem; outline: none;
+    .genre-filter-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .genre-filter-container::-webkit-scrollbar {
+      display: none;
+    }
+    .genre-btn {
       background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
-    .add-cat-btn {
-      background: var(--primary); color: white; border: none;
-      width: 36px; height: 36px; border-radius: 18px;
-      font-size: 1.1rem; font-weight: bold; cursor: pointer;
-    }
-
-    /* 保存済み一覧 */
-    .category-section { margin-bottom: 24px; }
-    .category-header {
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 2px solid var(--primary); padding-bottom: 4px; margin-bottom: 10px;
-    }
-    .category-title {
-      font-size: 1rem; color: var(--primary); margin: 0; font-weight: bold;
-    }
-    .delete-cat-btn {
-      background: none; border: none; color: #ccc; font-size: 0.8rem; cursor: pointer;
+    .genre-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .app-list { display: flex; flex-direction: column; gap: 8px; }
+    /* アプリカード表示エリア */
+    .app-list { display: flex; flex-direction: column; gap: 10px; }
     .app-card {
-      background: var(--card-bg); border-radius: 12px; padding: 10px 12px;
+      background: var(--card-bg); border-radius: 14px; padding: 12px;
       border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
-    .card-main { display: flex; align-items: center; gap: 10px; }
+    .card-main { display: flex; align-items: center; gap: 12px; }
     .app-icon {
-      width: 28px; height: 28px; border-radius: 6px; object-fit: cover; background: #eee;
+      width: 32px; height: 32px; border-radius: 8px; object-fit: cover; background: #eee;
     }
     .app-info { flex: 1; overflow: hidden; }
     .app-name {
@@ -165,14 +176,20 @@
 
     .card-actions {
       display: flex; justify-content: flex-end; gap: 12px;
-      margin-top: 6px; padding-top: 4px; border-top: 1px dashed var(--border);
+      margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border);
     }
-    .action-btn { background: none; border: none; font-size: 0.85rem; opacity: 0.4; cursor: pointer; }
+    .action-btn { background: none; border: none; font-size: 0.9rem; opacity: 0.5; cursor: pointer; padding: 2px 4px; }
+    .action-btn:active { opacity: 1; transform: scale(1.1); }
     .pinned { opacity: 1 !important; filter: drop-shadow(0 0 2px rgba(255,165,0,0.8)); }
+
+    .empty-msg {
+      text-align: center; color: var(--subtext); font-size: 0.85rem; padding: 24px 0;
+    }
   </style>
 </head>
 <body>
 
+  <!-- ヘッダー＆トップイラスト画像 -->
   <header>
     <div class="theme-selector">
       <button class="theme-btn" onclick="setTheme('pop')">🍭</button>
@@ -184,6 +201,7 @@
   </header>
 
   <main>
+    <!-- 1. アプリ登録フォーム -->
     <div class="form-card">
       <h3 class="form-title">アプリの登録</h3>
       
@@ -205,19 +223,12 @@
       <button class="save-btn" onclick="saveApp()">保存する</button>
     </div>
 
-    <div class="add-cat-box">
-      <input type="text" id="newCatInput" placeholder="新しいジャンルを追加 (例: 🎨 趣味)">
-      <button class="add-cat-btn" onclick="addCategory()">＋</button>
-    </div>
+    <!-- 2. ジャンル選択ボタン -->
+    <div class="filter-section-title">📂 ジャンルで絞り込み</div>
+    <div class="genre-filter-container" id="genreFilterBtns"></div>
 
-    <section class="category-section" id="pinnedSection" style="display: none;">
-      <div class="category-header">
-        <h2 class="category-title">📌 ピン留めしたアプリ</h2>
-      </div>
-      <div class="app-list" id="pinnedList"></div>
-    </section>
-
-    <div id="categoriesContainer"></div>
+    <!-- 3. 保存されたアプリ一覧 -->
+    <div class="app-list" id="appList"></div>
   </main>
 
   <script>
@@ -227,6 +238,8 @@
       categories: defaultCategories,
       apps: []
     };
+
+    let activeFilter = 'すべて';
 
     function saveData() {
       localStorage.setItem('a_please_mobile_data', JSON.stringify(state));
@@ -245,41 +258,43 @@
       } catch (e) { return ''; }
     }
 
+    function setFilter(cat) {
+      activeFilter = cat;
+      render();
+    }
+
     function render() {
-      const container = document.getElementById('categoriesContainer');
-      const pinnedList = document.getElementById('pinnedList');
-      const pinnedSection = document.getElementById('pinnedSection');
-      container.innerHTML = ''; pinnedList.innerHTML = '';
-
-      // 📌 ピン留めアプリの表示制御
-      const pinnedApps = state.apps.filter(a => a.pinned);
-      if (pinnedApps.length > 0) {
-        pinnedSection.style.display = 'block';
-        pinnedApps.forEach(a => pinnedList.appendChild(createCard(a)));
-      } else {
-        pinnedSection.style.display = 'none';
-      }
-
-      // ジャンル別アプリ一覧の描画
-      state.categories.forEach(cat => {
-        const catApps = state.apps.filter(a => a.category === cat);
-        const sec = document.createElement('section');
-        sec.className = 'category-section';
-        sec.innerHTML = `
-          <div class="category-header">
-            <h2 class="category-title">${cat}</h2>
-            <button class="delete-cat-btn" onclick="deleteCategory('${cat}')">削除</button>
-          </div>
-          <div class="app-list"></div>
-        `;
-        const list = sec.querySelector('.app-list');
-        catApps.forEach(a => list.appendChild(createCard(a)));
-        container.appendChild(sec);
-      });
-
-      // ジャンル選択肢の更新
+      // セレクトボックス更新
       document.getElementById('appCatSelect').innerHTML = 
         state.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      // フィルターボタン描画
+      const filterContainer = document.getElementById('genreFilterBtns');
+      const allCategories = ['すべて', ...state.categories];
+      
+      filterContainer.innerHTML = allCategories.map(cat => `
+        <button class="genre-btn ${activeFilter === cat ? 'active' : ''}" onclick="setFilter('${cat}')">
+          ${cat}
+        </button>
+      `).join('');
+
+      // アプリ描画
+      const appList = document.getElementById('appList');
+      appList.innerHTML = '';
+
+      let displayApps = state.apps;
+      if (activeFilter !== 'すべて') {
+        displayApps = state.apps.filter(a => a.category === activeFilter);
+      }
+
+      displayApps.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+      if (displayApps.length === 0) {
+        appList.innerHTML = `<div class="empty-msg">「${activeFilter}」のアプリはまだありません 🐱</div>`;
+        return;
+      }
+
+      displayApps.forEach(a => appList.appendChild(createCard(a)));
     }
 
     function createCard(app) {
@@ -295,6 +310,7 @@
         </div>
         <div class="card-actions">
           <button class="action-btn ${app.pinned ? 'pinned' : ''}" onclick="togglePin('${app.id}')" title="ピン留め">📌</button>
+          <button class="action-btn" onclick="shareApp('${app.name}', '${app.url}')" title="共有">📤</button>
           <button class="action-btn" onclick="copyLink('${app.name}', '${app.url}')" title="リンクコピー">🔗</button>
           <button class="action-btn" onclick="deleteApp('${app.id}')" title="削除">🗑️</button>
         </div>
@@ -302,29 +318,31 @@
       return card;
     }
 
-    function addCategory() {
-      const input = document.getElementById('newCatInput');
-      const val = input.value.trim();
-      if (val && !state.categories.includes(val)) {
-        state.categories.push(val);
-        input.value = '';
-        saveData();
-      }
-    }
-
-    function deleteCategory(cat) {
-      if (confirm(`「${cat}」ジャンルを削除しますか？`)) {
-        state.categories = state.categories.filter(c => c !== cat);
-        state.apps = state.apps.filter(a => a.category !== cat);
-        saveData();
-      }
-    }
-
     function togglePin(id) {
       const app = state.apps.find(a => a.id === id);
       if (app) { 
         app.pinned = !app.pinned; 
         saveData(); 
+      }
+    }
+
+    // 📤 共有機能（Web Share API）
+    async function shareApp(name, url) {
+      const shareData = {
+        title: name,
+        text: `おすすめアプリ: ${name}`,
+        url: url
+      };
+      
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          console.log('共有がキャンセルされました');
+        }
+      } else {
+        // Web Share未対応のブラウザはコピーで代用
+        copyLink(name, url);
       }
     }
 
@@ -347,7 +365,7 @@
     }
 
     function deleteApp(id) {
-      if (confirm('アプリを削除しますか？')) {
+      if (confirm('このアプリを削除しますか？')) {
         state.apps = state.apps.filter(a => a.id !== id);
         saveData();
       }
@@ -363,13 +381,14 @@
 
       state.apps.push({ id: Date.now().toString(), name, url, memo, category, pinned: false });
       
-      // 入力欄をクリア
+      activeFilter = category;
+
       document.getElementById('appUrlInput').value = '';
       document.getElementById('appNameInput').value = '';
       document.getElementById('appMemoInput').value = '';
 
       saveData();
-      alert('アプリを保存しました！');
+      alert(`「${name}」を【${category}】に保存しました！`);
     }
 
     render();
