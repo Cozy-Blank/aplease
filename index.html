@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="pop">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ア・プリーズ - 偏愛Tool</title>
+  <style>
+    /* 🎨 テーマ2：パステル・キャンディポップ */
+    :root[data-theme="pop"] {
+      --bg-color: #fff8f8;
+      --card-bg: #ffffff;
+      --primary: #5ab1bb;
+      --accent: #f48b94;
+      --text: #2d3142;
+      --subtext: #6c757d;
+      --border: #f1e4e8;
+    }
+    :root[data-theme="natural"] {
+      --bg-color: #fbf9f5;
+      --card-bg: #ffffff;
+      --primary: #5b8360;
+      --accent: #e88d8d;
+      --text: #333333;
+      --subtext: #666666;
+      --border: #f0ebe1;
+    }
+    :root[data-theme="craft"] {
+      --bg-color: #f3eee7;
+      --card-bg: #ffffff;
+      --primary: #725a4d;
+      --accent: #d9822b;
+      --text: #2b2521;
+      --subtext: #6e655f;
+      --border: #e6ded5;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      margin: 0;
+      padding: 16px 16px 100px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ヘッダー＆トップ画像 */
+    header {
+      text-align: center;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .theme-selector {
+      position: absolute;
+      top: 0; right: 0;
+      display: flex; gap: 4px;
+    }
+    .theme-btn {
+      border: none; background: var(--card-bg);
+      padding: 4px 8px; border-radius: 12px;
+      font-size: 0.8rem; border: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .top-illustration {
+      width: 100%; height: auto;
+      border-radius: 16px; margin-top: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .subtitle {
+      font-size: 0.85rem; color: var(--subtext); margin-top: 6px;
+    }
+
+    /* ジャンル追加フォーム */
+    .add-cat-box {
+      display: flex; gap: 8px; margin-bottom: 24px;
+    }
+    .add-cat-box input {
+      flex: 1; padding: 10px 14px; border-radius: 20px;
+      border: 1px solid var(--border); font-size: 0.9rem; outline: none;
+      background: var(--card-bg);
+    }
+    .add-cat-btn {
+      background: var(--primary); color: white; border: none;
+      width: 40px; height: 40px; border-radius: 20px;
+      font-size: 1.2rem; font-weight: bold; cursor: pointer;
+    }
+
+    /* ジャンル＆カード */
+    .category-section { margin-bottom: 28px; }
+    .category-header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid var(--primary); padding-bottom: 4px; margin-bottom: 12px;
+    }
+    .category-title {
+      font-size: 1.1rem; color: var(--primary); margin: 0; font-weight: bold;
+    }
+    .delete-cat-btn {
+      background: none; border: none; color: #ccc; font-size: 0.8rem; cursor: pointer;
+    }
+
+    .app-list { display: flex; flex-direction: column; gap: 10px; min-height: 10px; }
+    .app-card {
+      background: var(--card-bg); border-radius: 12px; padding: 12px;
+      border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .card-main { display: flex; align-items: center; gap: 10px; }
+    .app-icon {
+      width: 28px; height: 28px; border-radius: 6px; object-fit: cover; background: #eee;
+    }
+    .app-info { flex: 1; overflow: hidden; }
+    .app-name {
+      font-weight: bold; color: var(--primary); text-decoration: none;
+      font-size: 0.95rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .app-memo {
+      font-size: 0.8rem; color: var(--subtext); margin-top: 4px; line-height: 1.3;
+    }
+
+    .card-actions {
+      display: flex; justify-content: flex-end; gap: 12px;
+      margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border);
+    }
+    .action-btn { background: none; border: none; font-size: 0.9rem; opacity: 0.4; cursor: pointer; }
+    .pinned { opacity: 1 !important; filter: drop-shadow(0 0 2px rgba(255,165,0,0.8)); }
+
+    /* スマホ専用 下部固定追加ボタン */
+    .floating-add-btn {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      width: 90%; max-width: 440px; background: var(--primary); color: white;
+      border: none; padding: 14px; border-radius: 30px; font-weight: bold;
+      font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      cursor: pointer;
+    }
+
+    /* モーダル */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); justify-content: center; align-items: flex-end; z-index: 1000;
+    }
+    .modal-content {
+      background: var(--card-bg); width: 100%; max-width: 500px; padding: 20px;
+      border-radius: 20px 20px 0 0; display: flex; flex-direction: column; gap: 12px;
+    }
+    .url-input-group {
+      display: flex; gap: 6px;
+    }
+    .paste-btn {
+      background: var(--accent); color: white; border: none; padding: 0 12px;
+      border-radius: 10px; font-size: 0.85rem; font-weight: bold; cursor: pointer;
+      white-space: nowrap;
+    }
+    .modal-content input, .modal-content textarea, .modal-content select {
+      width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+      font-size: 0.9rem; outline: none; background: var(--bg-color);
+    }
+    .input-label {
+      font-size: 0.8rem; color: var(--subtext); margin-bottom: -6px; font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="theme-selector">
+      <button class="theme-btn" onclick="setTheme('pop')">🍭</button>
+      <button class="theme-btn" onclick="setTheme('natural')">🌿</button>
+      <button class="theme-btn" onclick="setTheme('craft')">📖</button>
+    </div>
+    <img src="top-image.webp" alt="ア・プリーズ 偏愛Tool" class="top-illustration" onerror="this.style.display='none'">
+    <p class="subtitle">〜 便利なアプリをサクサク手帳に 〜</p>
+  </header>
+
+  <main>
+    <div class="add-cat-box">
+      <input type="text" id="newCatInput" placeholder="ジャンルを追加 (例: 🎨 趣味)">
+      <button class="add-cat-btn" onclick="addCategory()">＋</button>
+    </div>
+
+    <section class="category-section" id="pinnedSection" style="display: none;">
+      <div class="category-header">
+        <h2 class="category-title">📌 ピン留めしたアプリ</h2>
+      </div>
+      <div class="app-list" id="pinnedList"></div>
+    </section>
+
+    <div id="categoriesContainer"></div>
+  </main>
+
+  <button class="floating-add-btn" onclick="openAppModal()">＋ アプリを保存する</button>
+
+  <div class="modal" id="appModal">
+    <div class="modal-content">
+      <h3 style="margin:0; color:var(--primary);">アプリの登録</h3>
+      
+      <div class="input-label">1. リンク (URL)</div>
+      <div class="url-input-group">
+        <input type="url" id="appUrlInput" placeholder="https://...">
+        <button class="paste-btn" onclick="pasteClipboard()">📋 貼り付け</button>
+      </div>
+
+      <div class="input-label">2. アプリの名前</div>
+      <input type="text" id="appNameInput" placeholder="例: Googleマップ">
+
+      <div class="input-label">3. アプリのジャンル</div>
+      <select id="appCatSelect"></select>
+
+      <div class="input-label">4. 概要メモ</div>
+      <textarea id="appMemoInput" rows="3" placeholder="どんなアプリかメモ (例: 経路検索やお店探しに便利)"></textarea>
+
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        <button style="flex:1; padding:12px; border-radius:10px; border:1px solid var(--border); background:none; cursor:pointer;" onclick="closeAppModal()">キャンセル</button>
+        <button style="flex:1; padding:12px; border-radius:10px; border:none; background:var(--primary); color:white; font-weight:bold; cursor:pointer;" onclick="saveApp()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // デフォルトジャンル設定
+    const defaultCategories = ['🧮 計算', '🏠 暮らし', '💼 仕事', '🛠️ 便利', '🗺️ 地図'];
+    
+    // サンプルアプリは完全除去（初期表示は空）
+    let state = JSON.parse(localStorage.getItem('a_please_mobile_data')) || {
+      categories: defaultCategories,
+      apps: []
+    };
+
+    function saveData() {
+      localStorage.setItem('a_please_mobile_data', JSON.stringify(state));
+      render();
+    }
+
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('a_please_theme', t);
+    }
+    setTheme(localStorage.getItem('a_please_theme') || 'pop');
+
+    function getFavicon(url) {
+      try {
+        return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`;
+      } catch (e) { return ''; }
+    }
+
+    function render() {
+      const container = document.getElementById('categoriesContainer');
+      const pinnedList = document.getElementById('pinnedList');
+      const pinnedSection = document.getElementById('pinnedSection');
+      container.innerHTML = ''; pinnedList.innerHTML = '';
+
+      // 📌 ピン留めされたアプリのみ一番上に移動表示
+      const pinnedApps = state.apps.filter(a => a.pinned);
+      if (pinnedApps.length > 0) {
+        pinnedSection.style.display = 'block';
+        pinnedApps.forEach(a => pinnedList.appendChild(createCard(a)));
+      } else {
+        pinnedSection.style.display = 'none';
+      }
+
+      // 各ジャンルごとのカード表示
+      state.categories.forEach(cat => {
+        const catApps = state.apps.filter(a => a.category === cat);
+        const sec = document.createElement('section');
+        sec.className = 'category-section';
+        sec.innerHTML = `
+          <div class="category-header">
+            <h2 class="category-title">${cat}</h2>
+            <button class="delete-cat-btn" onclick="deleteCategory('${cat}')">削除</button>
+          </div>
+          <div class="app-list"></div>
+        `;
+        const list = sec.querySelector('.app-list');
+        catApps.forEach(a => list.appendChild(createCard(a)));
+        container.appendChild(sec);
+      });
+
+      document.getElementById('appCatSelect').innerHTML = 
+        state.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function createCard(app) {
+      const card = document.createElement('div');
+      card.className = 'app-card';
+      card.innerHTML = `
+        <div class="card-main">
+          <img src="${getFavicon(app.url)}" class="app-icon" onerror="this.style.display='none'">
+          <div class="app-info">
+            <a href="${app.url}" target="_blank" class="app-name">${app.name}</a>
+            ${app.memo ? `<div class="app-memo">${app.memo}</div>` : ''}
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="action-btn ${app.pinned ? 'pinned' : ''}" onclick="togglePin('${app.id}')" title="ピン留め">📌</button>
+          <button class="action-btn" onclick="copyLink('${app.name}', '${app.url}')" title="リンクコピー">🔗</button>
+          <button class="action-btn" onclick="deleteApp('${app.id}')" title="削除">🗑️</button>
+        </div>
+      `;
+      return card;
+    }
+
+    function addCategory() {
+      const input = document.getElementById('newCatInput');
+      const val = input.value.trim();
+      if (val && !state.categories.includes(val)) {
+        state.categories.push(val);
+        input.value = '';
+        saveData();
+      }
+    }
+
+    function deleteCategory(cat) {
+      if (confirm(`「${cat}」ジャンルを削除しますか？`)) {
+        state.categories = state.categories.filter(c => c !== cat);
+        state.apps = state.apps.filter(a => a.category !== cat);
+        saveData();
+      }
+    }
+
+    function togglePin(id) {
+      const app = state.apps.find(a => a.id === id);
+      if (app) { 
+        app.pinned = !app.pinned; 
+        saveData(); 
+      }
+    }
+
+    function copyLink(name, url) {
+      navigator.clipboard.writeText(`${name} - ${url}`);
+      alert('リンクをコピーしました！');
+    }
+
+    async function pasteClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById('appUrlInput').value = text;
+        } else {
+          alert('クリップボードにテキストがありません');
+        }
+      } catch (err) {
+        alert('長押しして「貼り付け」を選択してください');
+      }
+    }
+
+    function deleteApp(id) {
+      if (confirm('アプリを削除しますか？')) {
+        state.apps = state.apps.filter(a => a.id !== id);
+        saveData();
+      }
+    }
+
+    function openAppModal() {
+      if (!state.categories.length) return alert('先にジャンルを作成してください！');
+      document.getElementById('appNameInput').value = '';
+      document.getElementById('appUrlInput').value = '';
+      document.getElementById('appMemoInput').value = '';
+      document.getElementById('appModal').style.display = 'flex';
+    }
+
+    function closeAppModal() {
+      document.getElementById('appModal').style.display = 'none';
+    }
+
+    function saveApp() {
+      const url = document.getElementById('appUrlInput').value.trim();
+      const name = document.getElementById('appNameInput').value.trim();
+      const memo = document.getElementById('appMemoInput').value.trim();
+      const category = document.getElementById('appCatSelect').value;
+
+      if (!url || !name) return alert('URLとアプリの名前を入力してください！');
+
+      state.apps.push({ id: Date.now().toString(), name, url, memo, category, pinned: false });
+      closeAppModal();
+      saveData();
+    }
+
+    render();
+  </script>
+</body>
+</html>
