@@ -96,6 +96,8 @@
       margin-bottom: -6px;
       font-weight: bold;
     }
+
+    /* URL入力欄（ボタンなしで1本化） */
     .form-card input, .form-card textarea, .form-card select {
       width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
       font-size: 0.9rem; outline: none; background: var(--bg-color); color: var(--text);
@@ -213,7 +215,6 @@
   </main>
 
   <script>
-    // 指定されたジャンルリスト（絵文字付きで分かりやすくセット！）
     const newCategories = [
       '🧮 計算',
       '📄 PDF',
@@ -229,7 +230,6 @@
       apps: []
     };
 
-    // 既存データがある場合も新しいジャンルリストに自動更新
     state.categories = newCategories;
 
     let activeFilter = 'すべて';
